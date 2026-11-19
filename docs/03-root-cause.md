@@ -1,7 +1,7 @@
 # 03 — Root cause: the region check in LK
 
-Everything in this document refers to **file offsets** inside the `lk` section
-container of `lk.img`, for the **reference build** (TB336FU, ZUI 17.5.10.321,
+Everything in this document refers to file offsets inside the `lk` section
+container of `lk.img`, for the reference build (TB336FU, ZUI 17.5.10.321,
 `…ST_260804`). Offsets move between builds; the *logic* does not. Scripts
 re-verify the expected bytes at every offset before acting.
 
@@ -11,8 +11,8 @@ re-verify the expected bytes at every offset before acting.
 
 | | Where it lives | Who writes it | Reference value |
 |---|---|---|---|
-| **device region** | **RPMB** (`product_region` + `region_state` block) | the factory (Lenovo) | `PRC` / `CNXX` |
-| **build region** | **`dtbo.img`** → FDT overlay `fragment@N` → `product_region` node → `country`, `province`, `city` | the firmware you flashed | `ROW` / `ROW` / `ROW` |
+| device region | RPMB (`product_region` + `region_state` block) | the factory (Lenovo) | `PRC` / `CNXX` |
+| build region | `dtbo.img` → FDT overlay `fragment@N` → `product_region` node → `country`, `province`, `city` | the firmware you flashed | `ROW` / `ROW` / `ROW` |
 
 The `dtbo` side is easy to confirm:
 
@@ -26,8 +26,8 @@ fragment@48 is the target of __fixups__: product_region
 ```
 
 Both the V and the W packages of the reference model declare `ROW` — including
-the *exact factory* package. So **no firmware available to the user can ever
-match a `PRC` device**. That is the whole problem.
+the *exact factory* package. So no firmware available to the user can ever
+match a `PRC` device. That is the whole problem.
 
 The device side shows up in `proinfo` (`countrycode = CNXX`, factory fingerprint
 `…_PRC…`) and in LK's boot log (`read countrycode is CNXX`).
@@ -81,8 +81,8 @@ return OK;                                      // boot continues
 
 | Log line | Address | Stock bytes | Condition to survive |
 |---|---|---|---|
-| **1427** `region is not update flag` | `0xaf14` | `41 04 00 54` = `b.ne #0xaf9c` | `region_state.update_flag == 1` — only Lenovo's *signed* region-change flow sets it |
-| **1437** `new region is not same` | `0xaf7c` | `e8 01 00 b4` = `cbz x8,#0xafb8` | staged region == build region |
+| 1427 `region is not update flag` | `0xaf14` | `41 04 00 54` = `b.ne #0xaf9c` | `region_state.update_flag == 1` — only Lenovo's *signed* region-change flow sets it |
+| 1437 `new region is not same` | `0xaf7c` | `e8 01 00 b4` = `cbz x8,#0xafb8` | staged region == build region |
 
 Layout of `region_check_main`:
 
@@ -101,19 +101,19 @@ Layout of `region_check_main`:
 
 On a factory-fresh unit `update_flag` is `0`: nothing official ever staged a
 region change, so the flag was never set. The `cmp` at `0xaf10` therefore fails
-and LK branches to the 1427 fatal block at `0xaf9c` — **upstream of the actual
-region comparison**. The 1437 branch is never even evaluated.
+and LK branches to the 1427 fatal block at `0xaf9c` — upstream of the actual
+region comparison. The 1437 branch is never even evaluated.
 
 Verified by the edge audit in
 [`scripts/lk_audit_gate.py`](../scripts/lk_audit_gate.py):
 
-* `0xaf14` and `0xaf9c` have **no other in-edges anywhere in `.text`**;
+* `0xaf14` and `0xaf9c` have no other in-edges anywhere in `.text`;
 * `0xaf9c` is reachable *only* from `0xaf14`;
 * `0xaf80` is reachable *only* by fallthrough from `0xaf7c`;
-* the screen renderer at `0x77644` has exactly **two callers** — `0xaf84` and
+* the screen renderer at `0x77644` has exactly two callers — `0xaf84` and
   `0xafa0`, i.e. exactly the two fatal blocks.
 
-> ⚠️ The audit must scan **all five AArch64 branch classes** (`B`, `BL`,
+> ⚠️ The audit must scan all five AArch64 branch classes (`B`, `BL`,
 > `B.cond`, `CBZ`, `TBZ`), 30,127 branches in this build. An early version that
 > only counted `CBZ`/`TBZ` produced a misleading result — re-run it rather than
 > trusting a stale log.
@@ -124,8 +124,8 @@ Verified by the edge audit in
 |---|---|
 | `0xada0` | pre-screen clear, then `0x77644` draws the bitmap from `logo.img` |
 | `0x3cd10` | MMIO `0xffff1c007008 ← 0x1971` — backlight on |
-| `0x6189c` | `delay_us(10_000_000)` = **10 seconds** |
-| `0x1bba0` → `0x1e848(2,3)` | queue → **power off** |
+| `0x6189c` | `delay_us(10_000_000)` = 10 seconds |
+| `0x1bba0` → `0x1e848(2,3)` | queue → power off |
 
 Exactly the observed behaviour: one screen, ~10 s, off, no loop.
 
@@ -133,13 +133,13 @@ Exactly the observed behaviour: one screen, ~10 s, off, no loop.
 
 ## 3.3 Why firmware flashing can never fix it
 
-1. The mismatched value is in **RPMB**. SP Flash Tool works through the
+1. The mismatched value is in RPMB. SP Flash Tool works through the
    preloader and only addresses *flash* partitions; RPMB is
    hardware-authenticated per-device with a replay counter. It is not in the
    scatter and cannot be written.
-2. **Format-all does not touch it** either (format targets `userdata`/
+2. Format-all does not touch it either (format targets `userdata`/
    `metadata`, not RPMB).
-3. **Factory reset does not touch it** (`userdata` is irrelevant).
+3. Factory reset does not touch it (`userdata` is irrelevant).
 4. Every available package declares `ROW`, including the exact factory one.
 
 ⇒ "I flashed the official package and it still fails" is the *expected* result,
@@ -154,7 +154,7 @@ The widely circulated patch flips exactly one branch:
            patch: b    #0xafb8       (0f 00 00 14)
 ```
 
-That is the **1437** gate. On a unit that dies at **1427** the patched
+That is the 1437 gate. On a unit that dies at 1427 the patched
 instruction is never reached — LK still branches at `0xaf14` into the untouched
 1427 block and re-draws the same screen. Static CFG
 ([`scripts/lk_region_cfg.py`](../scripts/lk_region_cfg.py)) proves there is no
@@ -171,7 +171,7 @@ had a staged region change (`update_flag == 1`) and died one gate later.
 0xaf7c   e8 01 00 b4   cbz  x8,#af80  →   0f 00 00 14   b #0xafb8
 ```
 
-Both fatal blocks become unreachable and **every** path converges on `0xafb8`:
+Both fatal blocks become unreachable and every path converges on `0xafb8`:
 
 ```
 write_product_region_to_rpmb(build region) → clean_update_flag() → return OK
@@ -181,9 +181,9 @@ write_product_region_to_rpmb(build region) → clean_update_flag() → return OK
 
 After the first successful boot:
 
-* RPMB `stored_region` **is now** the build's region (`ROW`) → the earlier
+* RPMB `stored_region` is now the build's region (`ROW`) → the earlier
   `region_compare` at `0xaec4` returns *same* on every later boot → LK takes the
-  healthy path **even with an unpatched stock bootloader**;
+  healthy path even with an unpatched stock bootloader;
 * `update_flag` has been cleared consistently with the stored region.
 
 So the patch only has to survive *one* boot. If you later re-flash stock `lk`,
@@ -197,14 +197,14 @@ byte-reversed `4d3c2b1a` at `+0x47c`, a 32-byte checksum at `+0x484`, and
 `[0x408]==0 && [0x40c]==1`. The reference device *passed* `0xa820` (it logged
 1427, not 1422), so `clean_update_flag` returns 0 → no line-1447 death.
 
-**Before applying the patch on your own unit, confirm the same**: your log must
-show **1427** (not 1422/1447) — see [02-diagnosis.md](02-diagnosis.md).
+Before applying the patch on your own unit, confirm the same: your log must
+show 1427 (not 1422/1447) — see [02-diagnosis.md](02-diagnosis.md).
 
 ---
 
 ## 3.6 Where `update_flag = 1` comes from (why we cannot fake it)
 
-Exactly **one** writer exists in `.text`: function `0x9bc0` (dispatched through
+Exactly one writer exists in `.text`: function `0x9bc0` (dispatched through
 a function table — i.e. the official `oem unlock-region` flow). It:
 
 1. reads `region_state` from RPMB (`id 0xf800`, length `0x500`);
@@ -215,7 +215,7 @@ a function table — i.e. the official `oem unlock-region` flow). It:
 
 The error strings around it (`sign verify fail`, `digest verify fail`,
 `wrong region length`, `Bootloader_SN not matched`) show the payload is
-**signed** — you cannot forge this path with a hand-made write. Either Lenovo's
+signed — you cannot forge this path with a hand-made write. Either Lenovo's
 tooling signs it, or you bypass the gate (the patch) instead.
 
 ---
@@ -230,7 +230,7 @@ lk (code) → cert1 → cert2 → bl2_ext → aee → lk_main_dtb → lk_dtbo �
 ```
 
 The bootloader verifies `cert2` before running the code. It contains a 995-byte
-DER blob plus, in *patched* images, a 90-byte **override** prefix:
+DER blob plus, in *patched* images, a 90-byte override prefix:
 
 ```
 cert2 = a0 58
@@ -242,10 +242,10 @@ cert2 = a0 58
 
 Two traps that make this look impossible at first:
 
-1. the **header digest covers only the first 512 bytes** (the MTK section
+1. the header digest covers only the first 512 bytes (the MTK section
    header), not the whole file;
-2. the **payload digest is over the section payload zero-padded to 16-byte
-   alignment**.
+2. the payload digest is over the section payload zero-padded to 16-byte
+   alignment.
 
 Get either wrong and "no hash of any range matches". With both correct, the
 scheme reproduces byte-for-byte on *both* the stock image and a known-good

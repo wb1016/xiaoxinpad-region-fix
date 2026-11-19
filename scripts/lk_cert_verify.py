@@ -136,8 +136,8 @@ print("  stock   cert2 digests explained  : %s" % ok_stock)
 print("  patched cert2 digests explained  : %s" % ok_patch)
 print("  patched = 90B override + stock DER + size 995->1085 : %s" % struct_ok)
 if ok_stock and ok_patch and struct_ok:
-    print("\n  *** MECHANISM CONFIRMED - a valid cert2 can be regenerated for any patch ***")
+    print("\n  * MECHANISM CONFIRMED - a valid cert2 can be regenerated for any patch *")
     sys.exit(0)
 else:
-    print("\n  *** hypothesis failed - do not hand-patch ***")
+    print("\n  * hypothesis failed - do not hand-patch *")
     sys.exit(1)

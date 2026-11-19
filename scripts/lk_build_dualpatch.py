@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 r"""Build a TWO-GATE patched LK (reference build: TB336FU, ZUI 17.5.10.321).
 
-**Portability note:** every offset and byte pattern below is specific to the
+Portability note: every offset and byte pattern below is specific to the
 reference build. The script *proves* applicability before patching: it refuses
 to run unless the stock bytes at each site match the expected ones. For any
 other build, re-derive the two gates first (docs/07-lk-patching.md).

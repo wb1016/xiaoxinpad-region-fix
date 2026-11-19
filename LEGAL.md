@@ -3,7 +3,7 @@
 ## Licence of this repository
 
 Unless stated otherwise, the original documentation and code in this repository
-is released under **CC0 1.0 Universal** (see [`LICENSE`](LICENSE)) — public
+is released under CC0 1.0 Universal (see [`LICENSE`](LICENSE)) — public
 domain dedication. Use it, copy it, modify it, publish it.
 
 No warranty: flashing firmware and patching bootloaders can permanently destroy
@@ -21,13 +21,13 @@ supported by any of them. Model names are used descriptively.
 
 | Not included | Why |
 |---|---|
-| **Any firmware package or firmware image** (`lk.img`, `dtbo.img`, `vbmeta*.img`, `super.img`, `logo.img`, `preloader`, …) | Copyrighted by Lenovo/MediaTek. Obtain them from Lenovo's official support site for your model. |
-| **Any patched bootloader image** | A derivative of Lenovo's copyrighted bootloader. This repo gives you the **script that builds it from your own copy** instead (`scripts/lk_build_dualpatch.py`). |
-| **SP Flash Tool and its files** (`SPFlashToolV6.exe`, `Qt5*.dll`, `console_mode.xsd`, `da.auth`, `DA_BR.bin`, `flash.xml`) | MediaTek proprietary; redistributing it is not allowed. It ships inside the official firmware package for your device — extract it from there. |
-| **Partition dumps / calibration data** (`cal_*.bin`, `proinfo`, `nvram`, `expdb`, `lk_a` read-backs, …) | Device-unique, contain device identity and radio calibration. Publishing them would leak a specific device's identifiers and could be used to clone identity data. |
-| **Third-party patched binaries** (e.g. the LPMBox release zip) | See below — GPL-3 source is linked, binary is not mirrored here. |
-| **Photos / video of the reference device** | May contain identifying information on screen. |
-| **Device identifiers** of the reference unit (serial numbers, bootloader SN, `sn.img`, MAC/IMEI, fingerprints of that unit, absolute local paths) | Personal/device data; `sn.img` in particular is device-specific and must never be shared. |
+| Any firmware package or firmware image (`lk.img`, `dtbo.img`, `vbmeta*.img`, `super.img`, `logo.img`, `preloader`, …) | Copyrighted by Lenovo/MediaTek. Obtain them from Lenovo's official support site for your model. |
+| Any patched bootloader image | A derivative of Lenovo's copyrighted bootloader. This repo gives you the script that builds it from your own copy instead (`scripts/lk_build_dualpatch.py`). |
+| SP Flash Tool and its files (`SPFlashToolV6.exe`, `Qt5*.dll`, `console_mode.xsd`, `da.auth`, `DA_BR.bin`, `flash.xml`) | MediaTek proprietary; redistributing it is not allowed. It ships inside the official firmware package for your device — extract it from there. |
+| Partition dumps / calibration data (`cal_*.bin`, `proinfo`, `nvram`, `expdb`, `lk_a` read-backs, …) | Device-unique, contain device identity and radio calibration. Publishing them would leak a specific device's identifiers and could be used to clone identity data. |
+| Third-party patched binaries (e.g. the LPMBox release zip) | See below — GPL-3 source is linked, binary is not mirrored here. |
+| Photos / video of the reference device | May contain identifying information on screen. |
+| Device identifiers of the reference unit (serial numbers, bootloader SN, `sn.img`, MAC/IMEI, fingerprints of that unit, absolute local paths) | Personal/device data; `sn.img` in particular is device-specific and must never be shared. |
 
 Nothing in this repository is encrypted or obfuscated; the omissions are
 deliberate and listed here so you know exactly what you must supply yourself.
@@ -39,13 +39,13 @@ deliberate and listed here so you know exactly what you must supply yourself.
 ### SP Flash Tool (MediaTek)
 
 Proprietary. Comes in the official firmware package for your device. This repo
-documents the **command lines and XML configuration shapes** only.
+documents the command lines and XML configuration shapes only.
 
 ### LPMBox — community recovery tool
 
-* Source: <https://github.com/dwas-KR/LPMBox> — **GPL-3.0**
+* Source: <https://github.com/dwas-KR/LPMBox> — GPL-3.0
 * Licence obligations for the binary rest with whoever distributes it. This
-  repository does **not** ship the binary or its bundled images; link, read the
+  repository does not ship the binary or its bundled images; link, read the
   source, and build/obtain it yourself.
 * Its published source is genuinely useful documentation: the `cert2`
   digest scheme described in [`docs/07-lk-patching.md`](docs/07-lk-patching.md)

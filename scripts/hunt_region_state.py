@@ -53,7 +53,7 @@ for p in FILES:
                     flag = struct.unpack_from("<I", blk, 0x410)[0]
                     v418 = struct.unpack_from("<I", blk, 0x418)[0]
                     v408 = struct.unpack_from("<Q", blk, 0x408)[0]
-                    print("      *** FULL region_state! flag@0x410=%#x  v@0x418=%#x  v@0x408=%#x"
+                    print("      * FULL region_state! flag@0x410=%#x  v@0x418=%#x  v@0x408=%#x"
                           % (flag, v418, v408))
                     # printable region fields (country@0, province@0x40, city@0x80)
                     for off, nm in ((0, "country"), (0x40, "province"), (0x80, "city")):

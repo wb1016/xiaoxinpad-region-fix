@@ -6,7 +6,7 @@ Grouped by what you observe. Always start by re-reading `expdb`
 
 ---
 
-## <a name="avb"></a>A. Device powers off with **no screen**
+## <a name="avb"></a>A. Device powers off with no screen
 
 ### A1 — AVB rejects `vbmeta`
 
@@ -18,10 +18,10 @@ ASSERT FAILED at (app/mt_boot/boot_info.c:181): g_boot_info.hdr_loaded
 HALT: action = 0, reason = 9
 ```
 
-**Meaning:** verified boot failed *before* the region check. This is **not** the
+Meaning: verified boot failed *before* the region check. This is not the
 white-screen problem and the region patch will not help.
 
-**Fix:** restore a coherent `vbmeta*` set that matches the rest of the firmware
+Fix: restore a coherent `vbmeta*` set that matches the rest of the firmware
 (same package, same build), or unlock and flash matching images. Check the
 descriptors first:
 
@@ -45,17 +45,17 @@ Power once.
 
 ---
 
-## B. White screen still there **after** flashing
+## B. White screen still there after flashing
 
 | Log shows | Meaning | Fix |
 |---|---|---|
 | `[Check_Region] 1427` again | the image that was flashed either was not the dual-gate one, or its `cert2` was rejected so LK fell back / refused | verify what was actually written: re-read `lk_a` and md5 it against your built image; rebuild with `lk_build_dualpatch.py` and confirm all verification checks are green |
 | `[Check_Region] 1437` now (was 1427) | progress — gate 1 was passed, gate 2 wasn't | make sure `0xaf7c` is patched too (dual-gate, not the community image) |
-| `[Check_Region] 1422` | `read_region_state_from_rpmb` **failed validation** on your unit | the success path you unlocked would also fail (`clean_update_flag` re-validates the same fields) → **do not** rely on Option A; use Option B/C/D instead |
+| `[Check_Region] 1422` | `read_region_state_from_rpmb` failed validation on your unit | the success path you unlocked would also fail (`clean_update_flag` re-validates the same fields) → do not rely on Option A; use Option B/C/D instead |
 | `[Check_Region] 1447` | `clean_update_flag` returned an error | same as 1422: the RPMB record is not in a state the success path accepts → use Option B/C/D |
 | no `[Check_Region]` at all | the check never ran (AVB death, or the tool flashed something else) | see section A, and verify the scatter tick set you flashed |
 
-**Verification steps when you suspect the wrong bytes were written:**
+Verification steps when you suspect the wrong bytes were written:
 
 ```bash
 # 1. what does the scatter say right now?
@@ -77,7 +77,7 @@ sha256sum lk_a.bin                          # compare with the build log output
 |---|---|---|
 | Tool spins, nothing found | no preloader window | start tool first, then unplug → hold Power 10 s → release → plug → press Power once |
 | Device shows as `0e8d:2046` | `off-mode-charge=1` | press Power once to leave charging mode |
-| Second run never connects | **DA still running** from the last session | full power-cycle before the next attempt |
+| Second run never connects | DA still running from the last session | full power-cycle before the next attempt |
 | `No such node (brom.version)` | `conn_stage="brom"` | use `conn_stage="2nd DA"` |
 | `flash list elements invalid` | used `WRITE-PARTITIONS` | use `-c download` (the only working write verb) |
 | `Cannot find [x] on current device storage` | used `WRITE-FLASH` | use `-c download` |
@@ -90,13 +90,13 @@ sha256sum lk_a.bin                          # compare with the build log output
 
 ## D. Fastboot / driver problems
 
-* **Fastboot enumerates (`0e8d:201c`) but no driver (PnP error 28).**
+* Fastboot enumerates (`0e8d:201c`) but no driver (PnP error 28).
   Nothing in Options A/B/C needs fastboot. For Option D you need a real
   driver: Zadig (WinUSB) for the fastboot interface, or a Lenovo/MediaTek INF
   (driver installs require an elevated shell).
-* **Recovery exposes no ADB** on this family — confirmed twice; don't test it
+* Recovery exposes no ADB on this family — confirmed twice; don't test it
   again.
-* Recovery entry: hold **Vol UP + Vol DOWN**, tap Power, keep holding.
+* Recovery entry: hold Vol UP + Vol DOWN, tap Power, keep holding.
   Fastboot entry: recovery → *Enter fastboot*.
 
 ---
@@ -120,7 +120,7 @@ sha256sum lk_a.bin                          # compare with the build log output
 2. Re-read `expdb` and classify again — do not assume it is the same failure.
 3. If `[Check_Region] 1427` is back, the region record is no longer consistent
    with the build (e.g. a different firmware region was flashed). Re-run the
-   dual-gate fix **for the build you are now on**.
+   dual-gate fix for the build you are now on.
 
 ---
 

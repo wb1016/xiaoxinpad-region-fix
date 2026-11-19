@@ -65,7 +65,7 @@ KNOWN = {
     0x9f24: "region_state checksum build",
     0x9fc8: "write_region_state_to_rpmb(x22)",
     0x3c9a0: "pre-screen clear",
-    0x77644: "*** DRAW WHITE/RED ERROR BITMAP ***",
+    0x77644: "* DRAW WHITE/RED ERROR BITMAP *",
     0x3cd10: "backlight MMIO 0xffff1c007008 <- 0x1971",
     0x6189c: "delay_us",
     0x1bba0: "power off",
@@ -75,10 +75,10 @@ KNOWN = {
     0x61e80: "calloc(1,0x4a4)",
     0xad7c:  "log-and-cleanup tail (w1=source line, w2=ret)",
     0xad80:  "cleanup tail (free x19,x21,x20,x22 -> epilogue)",
-    0xada0:  "*** FATAL TAIL: backlight on -> delay 10s -> backlight off -> power off ***",
+    0xada0:  "* FATAL TAIL: backlight on -> delay 10s -> backlight off -> power off *",
     0xaec8:  "SUCCESS: free all -> ret",
-    0xaf9c:  "*** FATAL 1427 (update flag != 1) ***",
-    0xaf80:  "*** FATAL 1437 (new region != build region) ***",
+    0xaf9c:  "* FATAL 1427 (update flag != 1) *",
+    0xaf80:  "* FATAL 1437 (new region != build region) *",
     0xafb8:  "SUCCESS after region write: write_product_region + clean_update_flag",
 }
 
