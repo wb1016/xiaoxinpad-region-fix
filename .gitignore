@@ -1,0 +1,21 @@
+# generated / local-only data -- never commit
+work/
+*.img
+*.bin
+*.zip
+*.tar
+*.gz
+*.log
+*.xml
+!configs/*.xml
+*.mp4
+*.jpg
+*.jpeg
+*.png
+*.dll
+*.exe
+*.xsd
+__pycache__/
+*.pyc
+.vscode/
+.idea/

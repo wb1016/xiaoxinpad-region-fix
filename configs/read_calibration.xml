@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cflashtool-config version="1.0">
+  <general>
+    <connect-args com_port_name="" version="1.0" baud_rate="115200"
+                  timeout_ms="600000" com_port_type="USB-PCIE" conn_stage="2nd DA">
+      <flash-xml>image/download_agent/flash.xml</flash-xml>
+      <auth-file>da.auth</auth-file>
+      <cert-file></cert-file>
+    </connect-args>
+    <runtime-parameter da_log_level="INFO" version="1.0" system_os="WINDOWS"
+                       battery_status="0" log_channel="USB"
+                       checksum_level="4" initialize_dram="YES" usb_speed="0"/>
+    <log-info version="1.0" log_path="logs" clean_hours="24"/>
+  </general>
+  <commands>
+    <!-- READ-ONLY. Run this BEFORE any write or format step: it backs up every
+         calibration / identity / state partition that matters. See
+         docs/04-safety-and-backup.md for what each one is.
+
+         Partition NAMES come from your own scatter: edit them to match if
+         your platform names them differently. Addresses below are from the
+         reference build and are informational only (the tool resolves them
+         from the scatter).
+
+         nvcfg       32 MB   MTK NVRAM config (metadata + filter)
+         nvdata      64 MB   MTK NVRAM data (modem/BT/WiFi cal)
+         persist     54 MB   vendor persist (sensors, DRM ids)
+         protect1     8 MB   FAT FS with backup NVRAM
+         protect2     8 MB   FAT FS with backup NVRAM
+         otp         43 MB   one-time programmable area
+         efuse      512 KB   READ ONLY - never write this
+         dram_para   25 MB   DRAM parameters
+         metadata    64 MB   vold/encryption metadata
+
+         Also worth reading once (add entries as needed): proinfo, nvram,
+         seccfg, para, frp, boot_para, lk_a (your rollback image), lenovocust. -->
+    <READ-PARTITION version="1.0" partition="nvcfg">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_nvcfg.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="nvdata">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_nvdata.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="protect1">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_protect1.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="protect2">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_protect2.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="otp">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_otp.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="efuse">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_efuse.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="dram_para">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_dram_para.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="persist">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_persist.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="metadata">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_metadata.bin"/>
+    </READ-PARTITION>
+
+    <!-- Device-original / vendor-specific areas that no firmware package
+         contains. Read them once: they are the most likely home of anything
+         you will ever need to restore.
+
+         bk1        2.5 MB  vendor backup area
+         sec1         2 MB  vendor secure area
+         preloader    1 MB  the device's ORIGINAL preloader (never write it) -->
+    <READ-PARTITION version="1.0" partition="bk1">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_bk1.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="sec1">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_sec1.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="preloader">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="cal_preloader.bin"/>
+    </READ-PARTITION>
+
+    <!-- DIAGNOSTICS: expdb holds the LK boot log in its 0x7E00000..0x8000000
+         tail: read it fresh so it reflects the device's CURRENT state, then
+         extract it with scripts/dump_lk_log.ps1. misc is read so you can check
+         the BCB / boot_ctrl state. -->
+    <READ-PARTITION version="1.0" partition="expdb">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="expdb.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="pstore">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="pstore.bin"/>
+    </READ-PARTITION>
+    <READ-PARTITION version="1.0" partition="misc">
+      <target-file version="1.0" file_type="LOCAL_FILE" file_name="misc.bin"/>
+    </READ-PARTITION>
+  </commands>
+</cflashtool-config>
